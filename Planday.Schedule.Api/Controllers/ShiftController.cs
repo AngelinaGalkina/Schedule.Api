@@ -25,7 +25,14 @@ namespace Planday.Schedule.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<GetShiftDto>>>> AddShift(GetShiftDto newShift)
         {
-            return Ok(await shiftService.AddShift(newShift));
+            var response = await shiftService.AddShift(newShift);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
         }
     }
 }
