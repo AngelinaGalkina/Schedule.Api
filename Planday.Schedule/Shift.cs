@@ -1,10 +1,9 @@
-﻿using System;
-
-namespace Planday.Schedule.Api.Models
+﻿
+namespace Planday.Schedule
 {
     public class Shift
     {
-        public Shift(long id, long? employeeId, DateTime start, DateTime end)
+        public Shift(long id, long? employeeId, string start, string end)
         {
             Id = id;
             EmployeeId = employeeId;
@@ -14,8 +13,8 @@ namespace Planday.Schedule.Api.Models
 
         public long Id { get; set; }
         public long? EmployeeId { get; set; }
-        public DateTime Start { get; }
-        public DateTime End { get; }
+        public string Start { get; }
+        public string End { get; }
     }
 }
 
