@@ -9,6 +9,7 @@ namespace Planday.Schedule.Api
         public AutoMapperProfile()
         {
             CreateMap<Shift, GetShiftDto>();
+            CreateMap<GetShiftDto, Shift>();
             ////CreateMap<AddCharacterDto, Character>();
             ////CreateMap<UpdateCharacterDto, Character>();
         }
