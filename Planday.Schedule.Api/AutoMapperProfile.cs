@@ -10,8 +10,10 @@ namespace Planday.Schedule.Api
         {
             CreateMap<Shift, GetShiftDto>();
             CreateMap<GetShiftDto, Shift>();
-            ////CreateMap<AddCharacterDto, Character>();
-            ////CreateMap<UpdateCharacterDto, Character>();
+            CreateMap<AddShiftDto, GetShiftDto>();
+            CreateMap<GetShiftDto, AddShiftDto>();
+            CreateMap<AddShiftDto, CreateShiftDto>();
+            CreateMap<CreateShiftDto, AddShiftDto>();
         }
     }
 }
