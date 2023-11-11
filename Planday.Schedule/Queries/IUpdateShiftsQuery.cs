@@ -5,7 +5,7 @@ namespace Planday.Schedule.Queries
 {
     public interface IUpdateShiftsQuery
     {
-        Task<bool> AddShift(Shift shift);
+        Task<long?> AddShift(AddShiftDto shift);
     }    
 }
 
