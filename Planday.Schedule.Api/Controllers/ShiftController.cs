@@ -23,9 +23,22 @@ namespace Planday.Schedule.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<GetShiftDto>>>> AddShift(GetShiftDto newShift)
+        public async Task<ActionResult<ServiceResponse<List<GetShiftDto>>>> AddShift(CreateShiftDto newShift)
         {
             var response = await shiftService.AddShift(newShift);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPatch("{EmployeeId}, {ShiftId}")]
+        public async Task<ActionResult<ServiceResponse<GetShiftDto>>> AssignShiftToEmployee(int employeeId, int shiftId)
+        {
+            var response = await shiftService.AssignShiftToEmployee(employeeId, shiftId);
 
             if (!response.Success)
             {
