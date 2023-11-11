@@ -23,14 +23,14 @@ namespace Planday.Schedule.Api.Services
         {
             var selectShiftsQuery = new SelectShiftsQuery(_connectionStringProvider);
             var serviceResponse = new ServiceResponse<GetShiftDto>();
-            var shift = selectShiftsQuery.GetShiftById(id);
+            var shift = await selectShiftsQuery.GetShiftById(id);
 
             serviceResponse.Data = Mapper.Map<GetShiftDto>(shift);
 
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<GetShiftDto>> AddShift(GetShiftDto newShift)
+        public async Task<ServiceResponse<GetShiftDto>> AddShift(CreateShiftDto newShift)
         {
             var updateShiftsQuery = new UpdateShiftsQuery(_connectionStringProvider);
             var selectShiftsQuery = new SelectShiftsQuery(_connectionStringProvider);
@@ -45,13 +45,13 @@ namespace Planday.Schedule.Api.Services
                 return serviceResponse;
             }
 
-            var shift = Mapper.Map<Shift>(newShift);
+            var shift = Mapper.Map<AddShiftDto>(newShift);
 
             try
             {
-                var ok = updateShiftsQuery.AddShift(shift);
+                var newShiftId = await updateShiftsQuery.AddShift(shift);
 
-                if (!ok.IsCompletedSuccessfully)
+                if (newShiftId == null)
                 {
                     serviceResponse.Success = false;
                     serviceResponse.Message = "Couldn't add new shift, something went wrong";
@@ -59,7 +59,7 @@ namespace Planday.Schedule.Api.Services
                     return serviceResponse;
                 }
 
-                var addedShift = selectShiftsQuery.GetShiftById(shift.Id);
+                var addedShift = await selectShiftsQuery.GetShiftById(newShiftId);
                 var shiftDto = Mapper.Map<GetShiftDto>(addedShift);
 
                 serviceResponse.Data = shiftDto;
@@ -72,5 +72,17 @@ namespace Planday.Schedule.Api.Services
 
             return serviceResponse;
         }
+
+        public async Task<ServiceResponse<GetShiftDto>> AssignShiftToEmployee(int employeeId, int shiftId)
+        {
+            var selectShiftsQuery = new SelectShiftsQuery(_connectionStringProvider);
+            var serviceResponse = new ServiceResponse<GetShiftDto>();
+            ////var shift = await selectShiftsQuery.GetShiftById(id);
+
+            ////serviceResponse.Data = Mapper.Map<GetShiftDto>(shift);
+
+            return serviceResponse;
+        }
+        
     }
 }
