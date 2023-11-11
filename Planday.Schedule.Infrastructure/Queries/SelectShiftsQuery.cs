@@ -27,14 +27,18 @@ namespace Planday.Schedule.Infrastructure.Queries
             return shifts.ToList();
         }
 
-        public async Task<Shift> GetShiftById(long id)
+        public async Task<Shift> GetShiftById(long? id)
         {
             await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 
-            var sqlResponse = await sqlConnection.QueryAsync<Shift>(Sql);
-            var shift = sqlResponse.FirstOrDefault(x => x.Id == id);
+            var sqlResponse = await sqlConnection.QueryAsync<AddShift>(Sql);
 
-            return shift ?? throw new ArgumentException($"Shift with ID {id} not found.");
+            var shifts = sqlResponse.Select(x =>
+              new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
+
+            var shift = shifts.FirstOrDefault(x => x.Id == id);
+
+            return shift;
         }
     }
 }

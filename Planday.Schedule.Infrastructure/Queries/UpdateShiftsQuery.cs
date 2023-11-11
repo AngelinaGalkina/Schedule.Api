@@ -18,14 +18,16 @@ namespace Planday.Schedule.Infrastructure.Queries
         private const string SqlInsertStartWithEmployeeId = @"INSERT INTO Shift (EmployeeId, Start, End) VALUES (@EmployeeId, @Start, @End)";
         private const string SqlInsertStartNoEmployeeId = @"INSERT INTO Shift (Start, End) VALUES (@Start, @End)";
 
-        public async Task<bool> AddShift(Shift shift)
+        public async Task<long?> AddShift(AddShiftDto shift)
         {
             await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 
             await sqlConnection.OpenAsync();
             await using var transaction = sqlConnection.BeginTransaction();
 
-            var sqlText = shift.EmployeeId == null ? SqlInsertStartNoEmployeeId : SqlInsertStartWithEmployeeId;
+            var sqlText = shift.EmployeeId == null
+                ? $"{SqlInsertStartNoEmployeeId}"
+                : $"{SqlInsertStartWithEmployeeId}";
 
             await using var command = new SqliteCommand(sqlText, sqlConnection, transaction);
 
@@ -37,22 +39,18 @@ namespace Planday.Schedule.Infrastructure.Queries
             command.Parameters.AddWithValue("@Start", shift.Start);
             command.Parameters.AddWithValue("@End", shift.End);
 
-            try
-            {
-                int rowsAffected = await command.ExecuteNonQueryAsync();
-                transaction.Commit();
-                
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions here, such as logging or throwing custom exceptions.
-                // Rollback the transaction on failure.
-                transaction.Rollback();
-                
-                return false;
-            }
+            await command.ExecuteNonQueryAsync();
+
+            // Execute the command and get the last inserted ID
+            command.CommandText = "SELECT last_insert_rowid();";
+
+            var newShiftId = (long?)command.ExecuteScalar();
+
+            transaction.Commit();
+
+            return newShiftId;
         }
     }
 }
+
 
