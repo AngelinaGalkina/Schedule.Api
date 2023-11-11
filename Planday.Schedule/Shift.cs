@@ -3,7 +3,11 @@ namespace Planday.Schedule
 {
     public class Shift
     {
-        public Shift(long id, long? employeeId, string start, string end)
+        public Shift()
+        {
+        }
+
+        public Shift(long id, long? employeeId, DateTime start, DateTime end)
         {
             Id = id;
             EmployeeId = employeeId;
@@ -13,8 +17,8 @@ namespace Planday.Schedule
 
         public long Id { get; set; }
         public long? EmployeeId { get; set; }
-        public string Start { get; }
-        public string End { get; }
+        public DateTime Start { get; }
+        public DateTime End { get; }
     }
 }
 
