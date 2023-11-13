@@ -73,11 +73,36 @@ namespace Planday.Schedule.Api.Services
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<GetShiftDto>> AssignShiftToEmployee(int employeeId, int shiftId)
+        public async Task<ServiceResponse<GetShiftDto>> AssignShiftToEmployee(long employeeId, long shiftId)
         {
             var selectShiftsQuery = new SelectShiftsQuery(_connectionStringProvider);
+            var selectEmployeeQuery = new SelectEmployeeQuery(_connectionStringProvider);
             var serviceResponse = new ServiceResponse<GetShiftDto>();
-            ////var shift = await selectShiftsQuery.GetShiftById(id);
+            var shift = await selectShiftsQuery.GetShiftById(shiftId);
+
+            if (shift == null)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "This shift doesn't exists";
+
+                return serviceResponse;
+            }
+
+            var employee = await selectEmployeeQuery.GetEmployeeById(employeeId);
+
+            if (employee == null)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "This employee doesn't exists";
+
+                return serviceResponse;
+            }
+
+            // Validation for the condition:  an employee cannot be assigned
+            // to a shift in a time where that employee is already working
+            var newShiftStart = shift.Start;
+            
+
 
             ////serviceResponse.Data = Mapper.Map<GetShiftDto>(shift);
 

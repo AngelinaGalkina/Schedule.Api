@@ -7,6 +7,6 @@ namespace Planday.Schedule.Api.Services
     {
         Task<ServiceResponse<GetShiftDto>> GetShiftById(int id);
         Task<ServiceResponse<GetShiftDto>> AddShift(CreateShiftDto newShift);
-        Task<ServiceResponse<GetShiftDto>> AssignShiftToEmployee(int employeeId, int shiftId);
+        Task<ServiceResponse<GetShiftDto>> AssignShiftToEmployee(long employeeId, long shiftId);
     }
 }
