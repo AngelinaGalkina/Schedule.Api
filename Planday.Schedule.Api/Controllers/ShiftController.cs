@@ -35,7 +35,7 @@ namespace Planday.Schedule.Api.Controllers
             return Ok(response);
         }
 
-        [HttpPatch("{EmployeeId}, {ShiftId}")]
+        [HttpPatch("{employeeId}-{shiftId}")]
         public async Task<ActionResult<ServiceResponse<GetShiftDto>>> AssignShiftToEmployee(int employeeId, int shiftId)
         {
             var response = await shiftService.AssignShiftToEmployee(employeeId, shiftId);
