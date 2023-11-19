@@ -101,8 +101,31 @@ namespace Planday.Schedule.Api.Services
             // Validation for the condition:  an employee cannot be assigned
             // to a shift in a time where that employee is already working
             var newShiftStart = shift.Start;
-            
+            var newShiftEnd = shift.End;
+            var newShiftEmployeeId = shift.EmployeeId;
+            var oveplappingShift = await selectShiftsQuery.OverlappingShifts(newShiftEmployeeId, newShiftStart, newShiftEnd);
 
+            if (oveplappingShift.Count != 0)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "There is an overlapping shift";
+
+                return serviceResponse;
+            }
+
+            // You cannot assign the same shift to two or more employees
+            var employeeIdsCheck = await selectShiftsQuery.GetEmployeeByShiftId(shiftId);
+
+            foreach (var employeeIdCheck in employeeIdsCheck)
+            {
+                if (employeeIdCheck != null)
+                {
+                    serviceResponse.Success = false;
+                    serviceResponse.Message = "This shift already has employee";
+
+                    return serviceResponse;
+                }
+            }
 
             ////serviceResponse.Data = Mapper.Map<GetShiftDto>(shift);
 
