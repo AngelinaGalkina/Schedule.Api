@@ -40,6 +40,45 @@ namespace Planday.Schedule.Infrastructure.Queries
 
             return shift;
         }
+
+        public async Task<IReadOnlyCollection<Shift>> OverlappingShifts(long? employeeId, DateTime newStart, DateTime newEnd)
+        {
+            await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
+
+            var sqlTextStart = $"SELECT * FROM Shift WHERE EmployeeId = {employeeId} AND ( ";
+            var sqlConditionAnd = $"(Start <= '{newStart}' AND End > '{newEnd}') OR ";
+            var sqlConditionOr = $"(Start < '{newStart}' AND End >= '{newEnd}')  OR ";
+            var sqlTextEnd = $"('{newStart}' <= Start AND '{newEnd}' >= End) ); ";
+            var sqlText = $"{sqlTextStart}{sqlConditionAnd}{sqlConditionOr}{sqlTextEnd}";
+            var sqlResponse = await sqlConnection.QueryAsync<AddShift>(sqlText);
+
+            var shifts = sqlResponse.Select(x =>
+              new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
+            
+            return shifts.ToList();
+        }
+
+
+        public async Task<IReadOnlyCollection<long?>> GetEmployeeByShiftId(long? id)
+        {
+            await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
+
+            var sqlText = $"SELECT * FROM Shift WHERE Id = {id};";
+
+            var sqlResponse = await sqlConnection.QueryAsync<AddShift>(Sql);
+
+            var shifts = sqlResponse.Select(x =>
+              new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
+
+            var employeeIdList = new List<long?>();
+
+            foreach (var shift in shifts)
+            {
+                employeeIdList.Add(shift.EmployeeId);
+            }
+
+            return employeeIdList;
+        }
     }
 }
 
