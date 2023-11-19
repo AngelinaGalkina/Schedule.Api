@@ -22,10 +22,10 @@ namespace Planday.Schedule.Infrastructure.Queries
 
             var sqlResponse = await sqlConnection.QueryAsync<EmployeeDto>(Sql);
 
-            var shifts = sqlResponse.Select(x =>
+            var employees = sqlResponse.Select(x =>
               new Employee(x.Id, x.Name));
 
-            var employee = shifts.FirstOrDefault(x => x.Id == id);
+            var employee = employees.FirstOrDefault(x => x.Id == id);
 
             return employee;
         }
