@@ -102,8 +102,7 @@ namespace Planday.Schedule.Api.Services
             // to a shift in a time where that employee is already working
             var newShiftStart = shift.Start;
             var newShiftEnd = shift.End;
-            var newShiftEmployeeId = shift.EmployeeId;
-            var oveplappingShift = await selectShiftsQuery.OverlappingShifts(newShiftEmployeeId, newShiftStart, newShiftEnd);
+            var oveplappingShift = await selectShiftsQuery.OverlappingShifts(employeeId, newShiftStart, newShiftEnd);
 
             if (oveplappingShift.Count != 0)
             {
@@ -127,10 +126,13 @@ namespace Planday.Schedule.Api.Services
                 }
             }
 
-            ////serviceResponse.Data = Mapper.Map<GetShiftDto>(shift);
+            var updateShiftsQuery = new UpdateShiftsQuery(_connectionStringProvider);
+            var updatedShift = await updateShiftsQuery.UpdateEmployeeId(shiftId, employeeId);
+            var shiftDto = Mapper.Map<GetShiftDto>(updatedShift);
+
+            serviceResponse.Data = shiftDto;
 
             return serviceResponse;
         }
-        
     }
 }
