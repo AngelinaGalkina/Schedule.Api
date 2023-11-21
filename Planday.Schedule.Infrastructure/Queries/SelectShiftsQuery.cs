@@ -65,7 +65,7 @@ namespace Planday.Schedule.Infrastructure.Queries
 
             var sqlText = $"SELECT * FROM Shift WHERE Id = {id};";
 
-            var sqlResponse = await sqlConnection.QueryAsync<AddShift>(Sql);
+            var sqlResponse = await sqlConnection.QueryAsync<AddShift>(sqlText);
 
             var shifts = sqlResponse.Select(x =>
               new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));

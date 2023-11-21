@@ -44,7 +44,8 @@ Add an endpoint and the necessary services to assign a shift to an employee.
 
 -	The endpoint needs the Shift Id and the Employee Id.
 -	Both the employee and the shift must exist.
--	The employee must not have overlapping shifts. That means: an employee cannot be assigned to a shift in a time where that employee is already working.
+-	The employee must not have overlapping shifts. 
+That means: an employee cannot be assigned to a shift in a time where that employee is already working.
 -	You cannot assign the same shift to two or more employees.
 
 ## Task 4: Create an API client to fetch the employee information
