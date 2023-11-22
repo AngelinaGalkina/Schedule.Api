@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using Newtonsoft.Json;
 using Planday.Schedule.Api.Dto;
 using Planday.Schedule.Api.Models;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Infrastructure.Queries;
+using RestSharp;
+using System.Net;
+using static System.Net.WebRequestMethods;
 
 namespace Planday.Schedule.Api.Services
 {
@@ -26,6 +30,17 @@ namespace Planday.Schedule.Api.Services
             var shift = await selectShiftsQuery.GetShiftById(id);
 
             serviceResponse.Data = Mapper.Map<GetShiftDto>(shift);
+
+            if (shift.EmployeeId == null)
+            {
+                serviceResponse.EmployeeEmail = "No email";
+
+                return serviceResponse;
+            }
+
+            var employeeEmail = EmployeeEmail((long)shift.EmployeeId);
+
+            serviceResponse.EmployeeEmail = employeeEmail;
 
             return serviceResponse;
         }
@@ -133,6 +148,40 @@ namespace Planday.Schedule.Api.Services
             serviceResponse.Data = shiftDto;
 
             return serviceResponse;
+        }
+
+        private string EmployeeEmail(long employeeId)
+        {
+            var url = $"http://planday-employee-api-techtest.westeurope.azurecontainer.io:5000/employee/{employeeId}";
+            var client = new RestClient(url);
+            var request = new RestRequest(url, Method.Get);
+
+            request.AddHeader("accept", "*");
+            request.AddHeader("Authorization", "8e0ac353-5ef1-4128-9687-fb9eb8647288");
+
+            var response = client.Execute(request);
+
+            if (response.IsSuccessful)
+            {
+                var responseData = response.Content;
+
+                if (responseData == null)
+                {
+                    return null;
+                }
+
+                // Deserialize the JSON string into a dynamic object
+                dynamic jsonObject = JsonConvert.DeserializeObject(responseData);
+
+                // Access the "email" property
+                var email = jsonObject.email;
+                
+                return email;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
