@@ -19,7 +19,14 @@ namespace Planday.Schedule.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetShiftDto>>> GetShift(int id)
         {
-            return Ok(await shiftService.GetShiftById(id));
+            var response = await shiftService.GetShiftById(id);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
         }
 
         [HttpPost]
