@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
-using Planday.Schedule.Queries;
+using Planday.Schedule.Queries.Select;
 
 namespace Planday.Schedule.Infrastructure.Queries
 {
@@ -27,7 +27,7 @@ namespace Planday.Schedule.Infrastructure.Queries
             return shifts.ToList();
         }
 
-        public async Task<Shift> GetShiftById(long? id)
+        public async Task<Shift> ShiftById(long? id)
         {
             await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 

@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
-using Planday.Schedule.Queries;
+using Planday.Schedule.Queries.Select;
 
 namespace Planday.Schedule.Infrastructure.Queries
 {
