@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
+using Planday.Schedule.Infrastructure.Dto;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
+using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Update;
 
 namespace Planday.Schedule.Infrastructure.Queries
@@ -37,7 +39,7 @@ namespace Planday.Schedule.Infrastructure.Queries
             transaction.Commit();
 
             var selectSql = $"SELECT * FROM shift WHERE Id = {shiftId};";
-            var sqlResponse = await sqlConnection.QueryAsync<AddShift>(selectSql);
+            var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(selectSql);
 
             var shift = sqlResponse.Select(x =>
                          new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End))).SingleOrDefault();
