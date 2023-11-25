@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Planday.Schedule.Api.Dto;
+using Planday.Schedule.Api.Models;
 using Planday.Schedule.Models;
 using Planday.Schedule.Services;
 
@@ -16,7 +18,7 @@ namespace Planday.Schedule.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<GetShiftDto>>> GetShift(int id)
+        public async Task<ActionResult<Response<ShiftDto>>> GetShift(int id)
         {
             var response = await _shiftService.ShiftById(id);
 
@@ -29,7 +31,7 @@ namespace Planday.Schedule.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<GetShiftDto>>>> AddShift(CreateShiftDto newShift)
+        public async Task<ActionResult<Response<List<ShiftDto>>>> AddShift(Shift newShift)
         {
             var response = await _shiftService.AddShift(newShift);
 
@@ -42,7 +44,7 @@ namespace Planday.Schedule.Api.Controllers
         }
 
         [HttpPatch("{employeeId}-{shiftId}")]
-        public async Task<ActionResult<ServiceResponse<GetShiftDto>>> AssignShiftToEmployee(int employeeId, int shiftId)
+        public async Task<ActionResult<Response<ShiftDto>>> AssignShiftToEmployee(int employeeId, int shiftId)
         {
             var response = await _shiftService.AssignShiftToEmployee(employeeId, shiftId);
 

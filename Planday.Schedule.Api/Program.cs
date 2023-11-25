@@ -1,3 +1,5 @@
+using Planday.Schedule.ApiClient;
+using Planday.Schedule.Infrastructure.ApiClient;
 using Planday.Schedule.Infrastructure.Providers;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Infrastructure.Queries;
@@ -21,6 +23,7 @@ builder.Services.AddScoped<ISelectShiftsQuery, SelectShiftsQuery>();
 builder.Services.AddScoped<ISelectEmployeeQuery, SelectEmployeeQuery>();
 builder.Services.AddScoped<IUpdateShiftsQuery, UpdateShiftsQuery>();
 builder.Services.AddScoped<IInsertShiftsQuery, InsertShiftsQuery>();
+builder.Services.AddScoped<IEmailApiHandler, EmailApiHandler>();
 
 var app = builder.Build();
 

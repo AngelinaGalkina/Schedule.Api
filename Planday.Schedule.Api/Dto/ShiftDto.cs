@@ -1,6 +1,6 @@
 ﻿namespace Planday.Schedule.Api.Dto
 {
-    public class GetShiftDto
+    public class ShiftDto
     {
         public long Id { get; set; }
         public long? EmployeeId { get; set; }
