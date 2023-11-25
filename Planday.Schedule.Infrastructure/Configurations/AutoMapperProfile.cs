@@ -2,7 +2,7 @@
 using Planday.Schedule.Infrastructure.Dto;
 using Planday.Schedule.Models;
 
-namespace Planday.Schedule
+namespace Planday.Schedule.Infrastructure.Configurations
 {
     public class AutoMapperProfile : Profile
     {

@@ -98,8 +98,4 @@ SELECT * FROM Employee;
 1|John Doe
 2|Jane Doe
 ```  
-- We expect you to spend no more than 4 hours in the assignment. If you want you can spend more, 
-but please consider that as a recommendation for the efforts you need to put in this challenge.
-- Make all the design decisions that you consider pertinent.
-- We highly value a solution with tests.
-- Any idea for performance improvements is welcomed. You don’t need to implement them if you don’t have enough time.
+
