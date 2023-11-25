@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Planday.Schedule.Queries
+namespace Planday.Schedule.Queries.Update
 {
     public interface IUpdateShiftsQuery
     {
-        Task<long?> AddShift(AddShiftDto shift);
         Task<Shift?> UpdateEmployeeId(long shiftId, long newEmployeeId);
-    }    
+    }
 }
 
