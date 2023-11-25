@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ using Microsoft.AspNetCore.Mvc;
 using Planday.Schedule.Api.Dto;
 using Planday.Schedule.Api.Models;
 using Planday.Schedule.Models;
@@ -17,6 +17,8 @@ namespace Planday.Schedule.Api.Controllers
             _shiftService = shiftService;
         }
 
+        //TODO convert responses to DTO
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Response<ShiftDto>>> GetShift(int id)
         {
@@ -31,9 +33,9 @@ namespace Planday.Schedule.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response<List<ShiftDto>>>> AddShift(Shift newShift)
+        public async Task<ActionResult<Response<ShiftDto>>> AddShift(Shift newShift)
         {
-            var response = await _shiftService.AddShift(newShift);
+            var response = await _shiftService.CreateShift(newShift);
 
             if (!response.Success)
             {
