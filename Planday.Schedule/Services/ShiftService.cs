@@ -1,19 +1,16 @@
-﻿using AutoMapper;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Planday.Schedule.ApiClient;
+using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Insert;
 using Planday.Schedule.Queries.Select;
 using Planday.Schedule.Queries.Update;
-using Planday.Schedule.Models;
+using Planday.Schedule.ResponseModels;
 using RestSharp;
-using System.Net;
-using static System.Net.WebRequestMethods;
 
 namespace Planday.Schedule.Services
 {
     public class ShiftService : IShiftService
     {
-        private readonly IMapper _mapper;
-
         private readonly ISelectShiftsQuery _selectShiftsQuery;
 
         private readonly IUpdateShiftsQuery _updateShiftsQuery;
@@ -21,45 +18,64 @@ namespace Planday.Schedule.Services
         private readonly ISelectEmployeeQuery _selectEmployeeQuery;
 
         private readonly IInsertShiftsQuery _insertShiftsQuery;
+        private readonly IEmailApiHandler _emailApiHandler;
 
-        public ShiftService(IMapper mapper,
-            ISelectShiftsQuery selectShiftsQuery,
+        public ShiftService(ISelectShiftsQuery selectShiftsQuery,
             IUpdateShiftsQuery updateShiftsQuery,
             ISelectEmployeeQuery selectEmployeeQuery,
-            IInsertShiftsQuery insertShiftsQuery)
+            IInsertShiftsQuery insertShiftsQuery,
+            IEmailApiHandler emailApiHandler)
         {
-            _mapper = mapper;
             _selectShiftsQuery = selectShiftsQuery;
             _updateShiftsQuery = updateShiftsQuery;
             _selectEmployeeQuery = selectEmployeeQuery;
             _insertShiftsQuery = insertShiftsQuery;
+            _emailApiHandler = emailApiHandler;
         }
 
 
-        public async Task<ShiftByIdServiceResponse<GetShiftDto>> ShiftById(int id)
+        public async Task<ShiftByIdServiceResponse<Shift>> ShiftById(int id)
         {
-            var shiftByIdServiceResponse = new ShiftByIdServiceResponse<GetShiftDto>();
+            var shiftByIdServiceResponse = new ShiftByIdServiceResponse<Shift>
+            {
+                Success = true,
+                Message = "Shift retrieved successfully"
+            };
             var shift = await _selectShiftsQuery.ShiftById(id);
 
-            shiftByIdServiceResponse.Data = _mapper.Map<GetShiftDto>(shift);
-
-            if (shift.EmployeeId == null)
+            if (shift == null)
             {
-                shiftByIdServiceResponse.EmployeeEmail = "This employee doesn't have email";
+                shiftByIdServiceResponse.Success = false;
+                shiftByIdServiceResponse.Message = "Couldn't get shift by id";
 
                 return shiftByIdServiceResponse;
             }
 
-            var employeeEmail = EmployeeEmail((long)shift.EmployeeId);
+            if (shift.EmployeeId == null)
+            {
+                shiftByIdServiceResponse.EmployeeEmail = "Employee id is null";
+
+                return shiftByIdServiceResponse;
+            }
+
+            var employeeEmail = _emailApiHandler.EmployeeEmail((long)shift.EmployeeId);
+
+            if (string.IsNullOrEmpty(employeeEmail))
+            {
+                shiftByIdServiceResponse.EmployeeEmail = "This employee doesn't have email";
+               
+                return shiftByIdServiceResponse;
+            }
 
             shiftByIdServiceResponse.EmployeeEmail = employeeEmail;
+            shiftByIdServiceResponse.Data = shift;
 
             return shiftByIdServiceResponse;
         }
 
-        public async Task<ServiceResponse<GetShiftDto>> AddShift(CreateShiftDto newShift)
+        public async Task<ServiceResponse<Shift>> AddShift(Shift newShift)
         {
-            var serviceResponse = new ServiceResponse<GetShiftDto>();
+            var serviceResponse = new ServiceResponse<Shift>();
             var result = newShift.Start.CompareTo(newShift.End);
 
             if (result > 0)
@@ -70,11 +86,9 @@ namespace Planday.Schedule.Services
                 return serviceResponse;
             }
 
-            var shift = _mapper.Map<AddShiftDto>(newShift);
-
             try
             {
-                var newShiftId = await _insertShiftsQuery.InsertShift(shift);
+                var newShiftId = await _insertShiftsQuery.InsertShift(newShift);
 
                 if (newShiftId == null)
                 {
@@ -85,9 +99,8 @@ namespace Planday.Schedule.Services
                 }
 
                 var addedShift = await _selectShiftsQuery.ShiftById(newShiftId);
-                var shiftDto = _mapper.Map<GetShiftDto>(addedShift);
 
-                serviceResponse.Data = shiftDto;
+                serviceResponse.Data = addedShift;
             }
             catch (Exception ex)
             {
@@ -98,9 +111,9 @@ namespace Planday.Schedule.Services
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<GetShiftDto>> AssignShiftToEmployee(long employeeId, long shiftId)
+        public async Task<ServiceResponse<Shift>> AssignShiftToEmployee(long employeeId, long shiftId)
         {
-            var serviceResponse = new ServiceResponse<GetShiftDto>();
+            var serviceResponse = new ServiceResponse<Shift>();
             var shift = await _selectShiftsQuery.ShiftById(shiftId);
 
             if (shift == null)
@@ -150,45 +163,12 @@ namespace Planday.Schedule.Services
             }
 
             var updatedShift = await _updateShiftsQuery.UpdateEmployeeId(shiftId, employeeId);
-            var shiftDto = _mapper.Map<GetShiftDto>(updatedShift);
 
-            serviceResponse.Data = shiftDto;
+            serviceResponse.Data = updatedShift;
 
             return serviceResponse;
         }
 
-        private string EmployeeEmail(long employeeId)
-        {
-            var url = $"http://planday-employee-api-techtest.westeurope.azurecontainer.io:5000/employee/{employeeId}";
-            var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
-
-            request.AddHeader("accept", "*");
-            request.AddHeader("Authorization", "8e0ac353-5ef1-4128-9687-fb9eb8647288");
-
-            var response = client.Execute(request);
-
-            if (response.IsSuccessful)
-            {
-                var responseData = response.Content;
-
-                if (responseData == null)
-                {
-                    return null;
-                }
-
-                // Deserialize the JSON string into a dynamic object
-                dynamic jsonObject = JsonConvert.DeserializeObject(responseData);
-
-                // Access the "email" property
-                var email = jsonObject.email;
-
-                return email;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        
     }
 }
