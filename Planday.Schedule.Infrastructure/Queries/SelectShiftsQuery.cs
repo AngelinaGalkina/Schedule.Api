@@ -5,7 +5,6 @@ using Planday.Schedule.Infrastructure.Dto;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Select;
-using Planday.Schedule.ResponseModels;
 
 namespace Planday.Schedule.Infrastructure.Queries
 {
@@ -13,23 +12,11 @@ namespace Planday.Schedule.Infrastructure.Queries
     {
         private readonly IConnectionStringProvider _connectionStringProvider;
         private readonly IMapper _mapper;
-        private const string Sql = @"SELECT Id, EmployeeId, Start, End FROM Shift;";
 
         public SelectShiftsQuery(IConnectionStringProvider connectionStringProvider, IMapper mapper)
         {
             _connectionStringProvider = connectionStringProvider;
             _mapper = mapper;
-        }
-    
-        public async Task<IReadOnlyCollection<Shift>> AllShifts()
-        {
-            await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
-
-            var sqlResponse = await sqlConnection.QueryAsync<Shift>(Sql);
-            var shifts = sqlResponse.Select(x => 
-                new Shift(x.Id, x.EmployeeId, x.Start, x.End));
-        
-            return shifts.ToList();
         }
 
         public async Task<Shift?> ShiftById(long? id)
@@ -63,6 +50,7 @@ namespace Planday.Schedule.Infrastructure.Queries
             var sqlText = $"{sqlTextStart}{sqlConditionAnd}{sqlConditionOr}{sqlTextEnd}";
             var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText);
 
+            // TODO consider static on the lambda
             var shifts = sqlResponse.Select(x =>
               new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
             
@@ -82,7 +70,7 @@ namespace Planday.Schedule.Infrastructure.Queries
               new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
 
             var employeeIdList = new List<long?>();
-
+            /// TODO use select instead of foreach. Plus auto mapper 
             foreach (var shift in shifts)
             {
                 employeeIdList.Add(shift.EmployeeId);

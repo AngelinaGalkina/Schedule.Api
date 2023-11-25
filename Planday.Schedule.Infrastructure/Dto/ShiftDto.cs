@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Planday.Schedule.Infrastructure.Dto
 {
+    // TODO consider record, and namespace without scope braces
     public class ShiftDto
     {
         public long Id { get; set; }

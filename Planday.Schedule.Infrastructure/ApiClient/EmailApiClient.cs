@@ -4,16 +4,17 @@ using RestSharp;
 
 namespace Planday.Schedule.Infrastructure.ApiClient
 {
-    public class EmailApiHandler : IEmailApiHandler
+    //TODO rn\ename to client form handler
+    public class EmailApiClient : IEmailApiClient
     {
-        public string EmployeeEmail(long employeeId)
+        public string? EmployeeEmail(long employeeId)
         {
             var url = $"http://planday-employee-api-techtest.westeurope.azurecontainer.io:5000/employee/{employeeId}";
             var client = new RestClient(url);
             var request = new RestRequest(url, Method.Get);
 
             request.AddHeader("accept", "*");
-            request.AddHeader("Authorization", "8e0ac353-5ef1-4128-9687-fb9eb8647288");
+            request.AddHeader("Authorization", "8e0ac353-5ef1-4128-9687-fb9eb8647288"); // move to env variable
 
             var response = client.Execute(request);
 
