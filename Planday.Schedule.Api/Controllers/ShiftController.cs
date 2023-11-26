@@ -17,45 +17,87 @@ namespace Planday.Schedule.Api.Controllers
             _shiftService = shiftService;
         }
 
-        //TODO convert responses to DTO
-
         [HttpGet("{id}")]
-        public async Task<ActionResult<Response<ShiftDto>>> GetShift(int id)
+        public async Task<ActionResult<Response<AssignedShiftDto>>> GetShift(int id)
         {
-            var response = await _shiftService.ShiftById(id);
+            var response = new Response<AssignedShiftDto>();
 
-            if (!response.Success)
+            try
             {
-                return NotFound(response);
-            }
+                var employeeShift = await _shiftService.ShiftById(id);
 
-            return Ok(response);
+                response.Data = new AssignedShiftDto
+                {
+                    Id = employeeShift.Id,
+                    EmployeeId = employeeShift.EmployeeId,
+                    End = employeeShift.End.ToString(),
+                    Start = employeeShift.Start.ToString(),
+                    EmployeeName = employeeShift.Name,
+                    EmployeeEmail = employeeShift.Email,
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+
+                return BadRequest(response);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response<ShiftDto>>> AddShift(Shift newShift)
+        public async Task<ActionResult<Response<ShiftDto>>> CreateShift(Shift newShift)
         {
-            var response = await _shiftService.CreateShift(newShift);
+            var response = new Response<ShiftDto>();
 
-            if (!response.Success)
+            try
             {
-                return NotFound(response);
-            }
+                var createdShift = await _shiftService.CreateShift(newShift);
 
-            return Ok(response);
+                response.Data = new ShiftDto
+                {
+                    Id = createdShift.Id,
+                    EmployeeId = createdShift.EmployeeId,
+                    End = createdShift.End.ToString(),
+                    Start = createdShift.Start.ToString(),
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+
+                return BadRequest(response);
+            }
         }
 
         [HttpPatch("{employeeId}-{shiftId}")]
         public async Task<ActionResult<Response<ShiftDto>>> AssignShiftToEmployee(int employeeId, int shiftId)
         {
-            var response = await _shiftService.AssignShiftToEmployee(employeeId, shiftId);
+            var response = new Response<ShiftDto>();
 
-            if (!response.Success)
+            try
             {
-                return NotFound(response);
-            }
+                var assignedShift = await _shiftService.AssignShiftToEmployee(employeeId, shiftId);
 
-            return Ok(response);
+                response.Data = new ShiftDto
+                {
+                    Id = assignedShift.Id,
+                    EmployeeId = assignedShift.EmployeeId,
+                    End = assignedShift.End.ToString(),
+                    Start = assignedShift.Start.ToString(),
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+
+                return BadRequest(response);
+            }
         }
     }
 }

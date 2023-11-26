@@ -9,7 +9,7 @@ using Planday.Schedule.Queries.Insert;
 using Planday.Schedule.Queries.Select;
 using Planday.Schedule.Queries.Update;
 using Planday.Schedule.Services;
-using Planday.Schedule.Validations;
+using Planday.Schedule.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +27,8 @@ builder.Services.AddScoped<ISelectEmployeeQuery, SelectEmployeeQuery>();
 builder.Services.AddScoped<IUpdateShiftsQuery, UpdateShiftsQuery>();
 builder.Services.AddScoped<IInsertShiftsQuery, InsertShiftsQuery>();
 builder.Services.AddScoped<IEmailApiClient, EmailApiClient>();
-builder.Services.AddScoped<ICreateShiftValidations, CreateShiftValidations>();
-builder.Services.AddScoped<IAssignShiftToEmployeeValidations, AssignShiftToEmployeeValidations>();
+builder.Services.AddScoped<ICreateShiftValidator, CreateShiftValidator>();
+builder.Services.AddScoped<IAssignShiftToEmployeeValidator, AssignShiftToEmployeeValidator>();
 
 
 var app = builder.Build();
