@@ -1,8 +1,8 @@
 ﻿using Planday.Schedule.Models;
 
-namespace Planday.Schedule.Validations
+namespace Planday.Schedule.Validators
 {
-    public class CreateShiftValidations : ICreateShiftValidations
+    public class CreateShiftValidator : ICreateShiftValidator
     {
         public bool Validate(Shift newShift)
         {

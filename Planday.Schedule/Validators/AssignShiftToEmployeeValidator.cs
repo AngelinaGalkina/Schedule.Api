@@ -1,13 +1,13 @@
 ﻿using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Select;
 
-namespace Planday.Schedule.Validations
+namespace Planday.Schedule.Validators
 {
-    public class AssignShiftToEmployeeValidations : IAssignShiftToEmployeeValidations
+    public class AssignShiftToEmployeeValidator : IAssignShiftToEmployeeValidator
     {
         private readonly ISelectShiftsQuery _selectShiftsQuery;
 
-        public AssignShiftToEmployeeValidations(ISelectShiftsQuery selectShiftsQuery)
+        public AssignShiftToEmployeeValidator(ISelectShiftsQuery selectShiftsQuery)
         {
             _selectShiftsQuery = selectShiftsQuery;
         }
