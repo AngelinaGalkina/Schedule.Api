@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Planday.Schedule.ApiClient;
+using Planday.Schedule.Models;
 using RestSharp;
 
 namespace Planday.Schedule.Infrastructure.ApiClient
 {
-    //TODO rn\ename to client form handler
     public class EmailApiClient : IEmailApiClient
     {
-        public string? EmployeeEmail(long employeeId)
+        public EmployeeInfo? EmployeeEmail(long employeeId)
         {
             var url = $"http://planday-employee-api-techtest.westeurope.azurecontainer.io:5000/employee/{employeeId}";
             var client = new RestClient(url);
@@ -30,10 +30,18 @@ namespace Planday.Schedule.Infrastructure.ApiClient
                 // Deserialize the JSON string into a dynamic object
                 dynamic jsonObject = JsonConvert.DeserializeObject(responseData);
 
-                // Access the "email" property
-                var email = jsonObject.email;
+                if (jsonObject == null)
+                {
+                    return null;
+                }
 
-                return email;
+                // Access the "email" property
+                string email = jsonObject.email;
+                string name = jsonObject.name;
+
+                var retVal = new EmployeeInfo(name, email);
+
+                return retVal;
             }
             else
             {

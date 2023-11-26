@@ -64,7 +64,7 @@ namespace Planday.Schedule.Infrastructure.Queries.Select
         }
 
 
-        public async Task<IReadOnlyCollection<long?>> GetEmployeeByShiftId(long id)
+        public async Task<IReadOnlyCollection<long?>> EmployeeByShiftId(long id)
         {
             await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 

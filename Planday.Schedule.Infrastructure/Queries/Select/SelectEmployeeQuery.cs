@@ -18,7 +18,7 @@ namespace Planday.Schedule.Infrastructure.Queries.Select
             _connectionStringProvider = connectionStringProvider;
         }
 
-        public async Task<Employee> GetEmployeeById(long? id)
+        public async Task<Employee> EmployeeById(long? id)
         {
             await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 

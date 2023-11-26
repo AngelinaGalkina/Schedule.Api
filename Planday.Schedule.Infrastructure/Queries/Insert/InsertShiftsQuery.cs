@@ -45,6 +45,7 @@ namespace Planday.Schedule.Infrastructure.Queries.Insert
             // Execute the command and get the last inserted ID
             command.CommandText = "SELECT last_insert_rowid();";
 
+            // This value can be null.
             var newShiftId = (long?)command.ExecuteScalar();
 
             transaction.Commit();
