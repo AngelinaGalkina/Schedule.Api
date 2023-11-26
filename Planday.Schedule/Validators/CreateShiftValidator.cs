@@ -4,7 +4,7 @@ namespace Planday.Schedule.Validators;
 
 public class CreateShiftValidator : ICreateShiftValidator
 {
-    public void Validate(Shift newShift)
+    public void Validate(ShiftBase newShift)
     {
         var result = newShift.Start.CompareTo(newShift.End);
 

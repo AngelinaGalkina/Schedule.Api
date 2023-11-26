@@ -54,7 +54,7 @@ public class ShiftService : IShiftService
         return shiftWithEmployeeInfo ?? new EmployeeShift(shift.Id, shift.EmployeeId, shift.Start, shift.End);
     }
 
-    public async Task<Shift> CreateShift(Shift newShift)
+    public async Task<Shift> CreateShift(ShiftBase newShift)
     {
         _createShiftValidations.Validate(newShift);
 
@@ -62,7 +62,7 @@ public class ShiftService : IShiftService
 
         if (newShiftId == null)
         {
-            throw new Exception($"Couldn't insert shift with id: {newShift.Id}");
+            throw new Exception("Couldn't insert shift");
         }
 
         // casting to long since value will never be null.
@@ -114,8 +114,8 @@ public class ShiftService : IShiftService
             {
                 return new EmployeeShift(shift.Id, shift.EmployeeId, shift.Start, shift.End)
                 {
-                    Name = employeeInfo.Name,
-                    Email = employeeInfo.Email
+                    EmployeeName = employeeInfo.Name,
+                    EmployeeEmail = employeeInfo.Email
                 };
             }
         }

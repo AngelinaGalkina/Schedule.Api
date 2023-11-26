@@ -4,5 +4,5 @@ namespace Planday.Schedule.Validators;
 
 public interface ICreateShiftValidator
 {
-    public void Validate(Shift newShift);
+    public void Validate(ShiftBase newShift);
 }
