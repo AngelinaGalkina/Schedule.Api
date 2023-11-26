@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Planday.Schedule.Models;
+﻿using Planday.Schedule.Models;
 
 namespace Planday.Schedule.Queries.Update;
 
