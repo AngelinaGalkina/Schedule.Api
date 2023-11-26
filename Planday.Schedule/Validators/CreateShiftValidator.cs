@@ -1,17 +1,16 @@
 ﻿using Planday.Schedule.Models;
 
-namespace Planday.Schedule.Validators
-{
-    public class CreateShiftValidator : ICreateShiftValidator
-    {
-        public void Validate(Shift newShift)
-        {
-            var result = newShift.Start.CompareTo(newShift.End);
+namespace Planday.Schedule.Validators;
 
-            if (result > 0)
-            {
-                throw new Exception("Can't create this shift, End time is bigger then start time");
-            }
+public class CreateShiftValidator : ICreateShiftValidator
+{
+    public void Validate(Shift newShift)
+    {
+        var result = newShift.Start.CompareTo(newShift.End);
+
+        if (result > 0)
+        {
+            throw new Exception("Can't create this shift, End time is bigger then start time");
         }
     }
 }

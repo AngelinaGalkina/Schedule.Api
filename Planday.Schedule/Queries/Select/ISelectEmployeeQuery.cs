@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using Planday.Schedule.Models;
 
-namespace Planday.Schedule.Queries.Select
+namespace Planday.Schedule.Queries.Select;
+
+public interface ISelectEmployeeQuery
 {
-    public interface ISelectEmployeeQuery
-    {
-        Task<Employee> EmployeeById(long? id);
-    }
+    Task<Employee> EmployeeById(long? id);
 }
 
