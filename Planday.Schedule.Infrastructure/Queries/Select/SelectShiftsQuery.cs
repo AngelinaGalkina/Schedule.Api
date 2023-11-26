@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using Planday.Schedule.Infrastructure.Dto;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
@@ -12,12 +11,10 @@ namespace Planday.Schedule.Infrastructure.Queries.Select;
 public class SelectShiftsQuery : ISelectShiftsQuery
 {
     private readonly IConnectionStringProvider _connectionStringProvider;
-    private readonly IMapper _mapper;
 
-    public SelectShiftsQuery(IConnectionStringProvider connectionStringProvider, IMapper mapper)
+    public SelectShiftsQuery(IConnectionStringProvider connectionStringProvider)
     {
         _connectionStringProvider = connectionStringProvider;
-        _mapper = mapper;
     }
 
     public async Task<Shift?> ShiftById(long id)
@@ -35,7 +32,11 @@ public class SelectShiftsQuery : ISelectShiftsQuery
             return null;
         }
 
-        var shift = _mapper.Map<Shift>(shiftDto);
+        var shift = new Shift(
+                shiftDto.Id,
+                shiftDto.EmployeeId,
+                DateTime.Parse(shiftDto.Start),
+                DateTime.Parse(shiftDto.End));
 
         return shift;
     }
@@ -56,11 +57,12 @@ public class SelectShiftsQuery : ISelectShiftsQuery
         sqlQueryBuilder.Append(");");
 
         var sqlText = sqlQueryBuilder.ToString();
-        var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText, parameters);
 
-        var shifts = _mapper.Map<List<Shift>>(sqlResponse);
+        var shiftDtos = await sqlConnection.QueryAsync<ShiftDto>(sqlText, parameters);
 
-        return shifts;
+        var shifts = shiftDtos.Select(x => new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
+
+        return shifts.ToList();
     }
 
 
@@ -69,13 +71,10 @@ public class SelectShiftsQuery : ISelectShiftsQuery
         await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 
         var sqlText = $"SELECT * FROM Shift WHERE Id = {id};";
+        var shiftDtos = await sqlConnection.QueryAsync<ShiftDto>(sqlText);
 
-        var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText);
-
-        var shifts = _mapper.Map<List<Shift>>(sqlResponse);
-
-        // employee id can be null.
-        var employeeIdList = shifts.Select(shift => shift.EmployeeId).ToList();
+        var shifts = shiftDtos.Select(x => new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
+        var employeeIdList = shifts.Select(x => x.EmployeeId).ToList();
 
         return employeeIdList;
     }

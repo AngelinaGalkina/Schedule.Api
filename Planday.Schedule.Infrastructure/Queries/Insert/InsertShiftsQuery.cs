@@ -1,5 +1,4 @@
-﻿using Dapper;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Insert;
@@ -19,7 +18,7 @@ public class InsertShiftsQuery : IInsertShiftsQuery
     private const string SqlInsertStartWithEmployeeId = @"INSERT INTO Shift (EmployeeId, Start, End) VALUES (@EmployeeId, @Start, @End)";
     private const string SqlInsertStartNoEmployeeId = @"INSERT INTO Shift (Start, End) VALUES (@Start, @End)";
 
-    public async Task<long?> InsertShift(Shift shift)
+    public async Task<long?> InsertShift(ShiftBase shift)
     {
         await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 
