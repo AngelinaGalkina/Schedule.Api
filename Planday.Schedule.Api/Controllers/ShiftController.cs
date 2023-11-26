@@ -1,4 +1,4 @@
- using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Planday.Schedule.Api.Dto;
 using Planday.Schedule.Api.Models;
 using Planday.Schedule.Models;
@@ -32,8 +32,8 @@ public class ShiftController : ControllerBase
                 EmployeeId = employeeShift.EmployeeId,
                 End = employeeShift.End.ToString(),
                 Start = employeeShift.Start.ToString(),
-                EmployeeName = employeeShift.Name,
-                EmployeeEmail = employeeShift.Email,
+                EmployeeName = employeeShift.EmployeeName,
+                EmployeeEmail = employeeShift.EmployeeEmail,
             };
 
             return Ok(response);
@@ -47,13 +47,15 @@ public class ShiftController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Response<ShiftDto>>> CreateShift(Shift newShift)
+    public async Task<ActionResult<Response<ShiftDto>>> CreateShift(CreateShiftDto newShift)
     {
         var response = new Response<ShiftDto>();
 
         try
         {
-            var createdShift = await _shiftService.CreateShift(newShift);
+            var shiftBase = new ShiftBase(newShift.EmployeeId, DateTime.Parse(newShift.Start), DateTime.Parse(newShift.End));
+
+            var createdShift = await _shiftService.CreateShift(shiftBase);
 
             response.Data = new ShiftDto
             {
@@ -73,7 +75,7 @@ public class ShiftController : ControllerBase
         }
     }
 
-    [HttpPatch("{employeeId}-{shiftId}")]
+    [HttpPatch]
     public async Task<ActionResult<Response<ShiftDto>>> AssignShiftToEmployee(int employeeId, int shiftId)
     {
         var response = new Response<ShiftDto>();
