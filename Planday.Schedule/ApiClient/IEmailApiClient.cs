@@ -1,8 +1,9 @@
-﻿namespace Planday.Schedule.ApiClient
+﻿using Planday.Schedule.Models;
+
+namespace Planday.Schedule.ApiClient;
+
+public interface IEmailApiClient
 {
-    public interface IEmailApiClient
-    {
-        public string? EmployeeEmail(long employeeId);
-    }
+    public EmployeeInfo? EmployeeEmail(long employeeId);
 }
 

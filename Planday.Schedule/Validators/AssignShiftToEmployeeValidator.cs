@@ -12,7 +12,7 @@ namespace Planday.Schedule.Validators
             _selectShiftsQuery = selectShiftsQuery;
         }
 
-        public async Task<bool> ValidateAsync(Shift shift, long employeeId, long shiftId)
+        public async Task ValidateAsync(Shift shift, long employeeId, long shiftId)
         {
             // Validation for the condition:  an employee cannot be assigned
             // to a shift in a time where that employee is already working
@@ -22,21 +22,19 @@ namespace Planday.Schedule.Validators
 
             if (oveplappingShift.Count != 0)
             {
-                return false;
+                throw new Exception($"This employee: {employeeId} has overlapping shifts");
             }
 
             // You cannot assign the same shift to two or more employees
-            var employeeIdsCheck = await _selectShiftsQuery.GetEmployeeByShiftId(shiftId);
+            var employeeIdsCheck = await _selectShiftsQuery.EmployeeByShiftId(shiftId);
 
             foreach (var employeeIdCheck in employeeIdsCheck)
             {
                 if (employeeIdCheck != null)
                 {
-                    return false;
+                    throw new Exception($"This shift already has employee, employee id: {employeeIdCheck}");
                 }
             }
-
-            return true;
         }
     }
 }

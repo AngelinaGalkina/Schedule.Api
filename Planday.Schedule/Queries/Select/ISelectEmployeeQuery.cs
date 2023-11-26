@@ -6,7 +6,7 @@ namespace Planday.Schedule.Queries.Select
 {
     public interface ISelectEmployeeQuery
     {
-        Task<Employee> GetEmployeeById(long? id);
+        Task<Employee> EmployeeById(long? id);
     }
 }
 

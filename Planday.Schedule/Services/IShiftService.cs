@@ -5,8 +5,8 @@ namespace Planday.Schedule.Services
 {
     public interface IShiftService
     {
-        Task<ShiftByIdServiceResponse<Shift>> ShiftById(int id);
-        Task<ServiceResponse<Shift>> CreateShift(Shift newShift);
-        Task<ServiceResponse<Shift>> AssignShiftToEmployee(long employeeId, long shiftId);
+        Task<EmployeeShift> ShiftById(long id);
+        Task<Shift> CreateShift(Shift newShift);
+        Task<Shift> AssignShiftToEmployee(long employeeId, long shiftId);
     }
 }

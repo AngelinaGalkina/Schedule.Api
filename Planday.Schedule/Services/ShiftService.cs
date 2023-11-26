@@ -1,12 +1,10 @@
-﻿using Newtonsoft.Json;
-using Planday.Schedule.ApiClient;
+﻿using Planday.Schedule.ApiClient;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Insert;
 using Planday.Schedule.Queries.Select;
 using Planday.Schedule.Queries.Update;
 using Planday.Schedule.ResponseModels;
-using Planday.Schedule.Validations;
-using RestSharp;
+using Planday.Schedule.Validators;
 
 namespace Planday.Schedule.Services
 {
@@ -21,17 +19,18 @@ namespace Planday.Schedule.Services
         private readonly IInsertShiftsQuery _insertShiftsQuery;
 
         private readonly IEmailApiClient _emailApiHandler;
-        private readonly ICreateShiftValidations _createShiftValidations;
-        private readonly IAssignShiftToEmployeeValidations _assignShiftToEmployeeValidations;
-
+        
+        private readonly ICreateShiftValidator _createShiftValidations;
+       
+        private readonly IAssignShiftToEmployeeValidator _assignShiftToEmployeeValidations;
 
         public ShiftService(ISelectShiftsQuery selectShiftsQuery,
             IUpdateShiftsQuery updateShiftsQuery,
             ISelectEmployeeQuery selectEmployeeQuery,
             IInsertShiftsQuery insertShiftsQuery,
             IEmailApiClient emailApiHandler,
-            ICreateShiftValidations createShiftValidations,
-            IAssignShiftToEmployeeValidations assignShiftToEmployeeValidations)
+            ICreateShiftValidator createShiftValidations,
+            IAssignShiftToEmployeeValidator assignShiftToEmployeeValidations)
         {
             _selectShiftsQuery = selectShiftsQuery;
             _updateShiftsQuery = updateShiftsQuery;
@@ -42,129 +41,87 @@ namespace Planday.Schedule.Services
             _assignShiftToEmployeeValidations = assignShiftToEmployeeValidations;
         }
 
-
-        public async Task<ShiftByIdServiceResponse<Shift>> ShiftById(int id)
+        public async Task<EmployeeShift> ShiftById(long id)
         {
-            var shiftByIdServiceResponse = new ShiftByIdServiceResponse<Shift>
+            var shift = await _selectShiftsQuery.ShiftById(id);
+
+            if (shift == null)
             {
-                Success = true,
-                Message = "Shift retrieved successfully"
-            };
-            try
-            {
-                var shift = await _selectShiftsQuery.ShiftById(id);
-
-                if (shift == null)
-                {
-                    shiftByIdServiceResponse.Success = false;
-                    shiftByIdServiceResponse.Message = "Couldn't get shift by id";
-
-                    return shiftByIdServiceResponse;
-                }
-
-
-                if (shift.EmployeeId != null)
-                {
-                    var employeeEmail = _emailApiHandler.EmployeeEmail((long)shift.EmployeeId);
-
-                    shiftByIdServiceResponse.EmployeeEmail = employeeEmail;
-                    shiftByIdServiceResponse.Data = shift;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                shiftByIdServiceResponse.Success = false;
-                shiftByIdServiceResponse.Message = ex.Message;
+                throw new Exception($"Couldn't find shift with id: {id}");
             }
 
-            return shiftByIdServiceResponse;
+            var shiftWithEmployeeInfo = ShiftWithEmployeeInfo(shift);
+
+            return shiftWithEmployeeInfo ?? new EmployeeShift(shift.Id, shift.EmployeeId, shift.Start, shift.End);
         }
 
-        public async Task<ServiceResponse<Shift>> CreateShift(Shift newShift)
+        public async Task<Shift> CreateShift(Shift newShift)
         {
-            var serviceResponse = new ServiceResponse<Shift>
-            {
-                Success = true,
-                Message = "Shift created successfully"
-            };
-            var ok = _createShiftValidations.Validate(newShift);
+            _createShiftValidations.Validate(newShift);
 
-            if (!ok)
-            {
-                serviceResponse.Success = false;
-                serviceResponse.Message = "Couldn't add new shift";
+            var newShiftId = await _insertShiftsQuery.InsertShift(newShift);
 
-                return serviceResponse;
+            if (newShiftId == null)
+            {
+                throw new Exception($"Couldn't insert shift with id: {newShift.Id}");
             }
 
-            try
+            // casting to long since value will never be null.
+            var createdShift = await _selectShiftsQuery.ShiftById((long)newShiftId);
+
+            if (createdShift == null)
             {
-                var newShiftId = await _insertShiftsQuery.InsertShift(newShift);
-
-                if (newShiftId == null)
-                {
-                    serviceResponse.Success = false;
-                    serviceResponse.Message = "Couldn't add new shift, something went wrong";
-
-                    return serviceResponse;
-                }
-
-                var addedShift = await _selectShiftsQuery.ShiftById(newShiftId);
-
-                serviceResponse.Data = addedShift;
-            }
-            catch (Exception ex)
-            {
-                serviceResponse.Success = false;
-                serviceResponse.Message = ex.Message;
+                throw new Exception($"Couldn't find created shift with id: {newShiftId}");
             }
 
-            return serviceResponse;
+            return createdShift;
         }
 
-        public async Task<ServiceResponse<Shift>> AssignShiftToEmployee(long employeeId, long shiftId)
+        public async Task<Shift> AssignShiftToEmployee(long employeeId, long shiftId)
         {
-            var serviceResponse = new ServiceResponse<Shift>
-            {
-                Success = true,
-                Message = "Assign Shift successfully"
-            };
             var shift = await _selectShiftsQuery.ShiftById(shiftId);
 
             if (shift == null)
             {
-                serviceResponse.Success = false;
-                serviceResponse.Message = "This shift doesn't exists";
-
-                return serviceResponse;
+                throw new Exception($"Couldn't find shift with id: {shiftId}");
             }
 
-            var employee = await _selectEmployeeQuery.GetEmployeeById(employeeId);
+            var employee = await _selectEmployeeQuery.EmployeeById(employeeId);
 
             if (employee == null)
             {
-                serviceResponse.Success = false;
-                serviceResponse.Message = "This employee doesn't exists";
-
-                return serviceResponse;
+                throw new Exception($"Couldn't find employee with id: {employeeId}");
             }
 
-            var ok = await _assignShiftToEmployeeValidations.ValidateAsync(shift, employeeId, shiftId);
-
-            if (!ok)
-            {
-                serviceResponse.Success = false;
-                serviceResponse.Message = "Couldn't assign shift to employee";
-
-                return serviceResponse;
-            }
+            await _assignShiftToEmployeeValidations.ValidateAsync(shift, employeeId, shiftId);
 
             var updatedShift = await _updateShiftsQuery.UpdateEmployeeId(shiftId, employeeId);
 
-            serviceResponse.Data = updatedShift;
+            if (updatedShift == null)
+            {
+                throw new Exception($"Couldn't update employee with id: {employeeId}");
+            }
 
-            return serviceResponse;
+            return updatedShift;
+        }
+
+        private EmployeeShift? ShiftWithEmployeeInfo(Shift shift)
+        {
+            if (shift.EmployeeId != null)
+            {
+                var employeeInfo = _emailApiHandler.EmployeeEmail((long)shift.EmployeeId);
+
+                if (employeeInfo != null)
+                {
+                    return new EmployeeShift(shift.Id, shift.EmployeeId, shift.Start, shift.End)
+                    {
+                        Name = employeeInfo.Name,
+                        Email = employeeInfo.Email
+                    };
+                }
+            }
+
+            return null;
         }
     }
 }

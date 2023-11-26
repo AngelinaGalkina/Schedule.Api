@@ -4,16 +4,14 @@ namespace Planday.Schedule.Validators
 {
     public class CreateShiftValidator : ICreateShiftValidator
     {
-        public bool Validate(Shift newShift)
+        public void Validate(Shift newShift)
         {
             var result = newShift.Start.CompareTo(newShift.End);
 
             if (result > 0)
             {
-                return false;
+                throw new Exception("Can't create this shift, End time is bigger then start time");
             }
-
-            return true;
         }
     }
 }
