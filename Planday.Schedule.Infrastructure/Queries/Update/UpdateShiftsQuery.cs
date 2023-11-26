@@ -5,7 +5,7 @@ using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Update;
 
-namespace Planday.Schedule.Infrastructure.Queries
+namespace Planday.Schedule.Infrastructure.Queries.Update
 {
     public class UpdateShiftsQuery : IUpdateShiftsQuery
     {

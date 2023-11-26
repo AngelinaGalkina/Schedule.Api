@@ -5,7 +5,7 @@ using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Select;
 
-namespace Planday.Schedule.Infrastructure.Queries
+namespace Planday.Schedule.Infrastructure.Queries.Select
 {
     public class SelectEmployeeQuery : ISelectEmployeeQuery
     {
@@ -17,7 +17,7 @@ namespace Planday.Schedule.Infrastructure.Queries
         {
             _connectionStringProvider = connectionStringProvider;
         }
-    
+
         public async Task<Employee> GetEmployeeById(long? id)
         {
             await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());

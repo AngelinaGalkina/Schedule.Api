@@ -6,7 +6,7 @@ using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Select;
 
-namespace Planday.Schedule.Infrastructure.Queries
+namespace Planday.Schedule.Infrastructure.Queries.Select
 {
     public class SelectShiftsQuery : ISelectShiftsQuery
     {
@@ -53,7 +53,7 @@ namespace Planday.Schedule.Infrastructure.Queries
             // TODO consider static on the lambda
             var shifts = sqlResponse.Select(x =>
               new Shift(x.Id, x.EmployeeId, DateTime.Parse(x.Start), DateTime.Parse(x.End)));
-            
+
             return shifts.ToList();
         }
 

@@ -4,7 +4,7 @@ using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Insert;
 
-namespace Planday.Schedule.Infrastructure.Queries
+namespace Planday.Schedule.Infrastructure.Queries.Insert
 {
     public class InsertShiftsQuery : IInsertShiftsQuery
     {
