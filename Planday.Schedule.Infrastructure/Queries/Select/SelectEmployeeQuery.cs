@@ -5,32 +5,31 @@ using Planday.Schedule.Infrastructure.Providers.Interfaces;
 using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Select;
 
-namespace Planday.Schedule.Infrastructure.Queries.Select
+namespace Planday.Schedule.Infrastructure.Queries.Select;
+
+public class SelectEmployeeQuery : ISelectEmployeeQuery
 {
-    public class SelectEmployeeQuery : ISelectEmployeeQuery
+    private readonly IConnectionStringProvider _connectionStringProvider;
+
+    private const string Sql = @"SELECT Id, Name FROM Employee;";
+
+    public SelectEmployeeQuery(IConnectionStringProvider connectionStringProvider)
     {
-        private readonly IConnectionStringProvider _connectionStringProvider;
+        _connectionStringProvider = connectionStringProvider;
+    }
 
-        private const string Sql = @"SELECT Id, Name FROM Employee;";
+    public async Task<Employee> EmployeeById(long? id)
+    {
+        await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 
-        public SelectEmployeeQuery(IConnectionStringProvider connectionStringProvider)
-        {
-            _connectionStringProvider = connectionStringProvider;
-        }
+        var sqlResponse = await sqlConnection.QueryAsync<EmployeeDto>(Sql);
 
-        public async Task<Employee> EmployeeById(long? id)
-        {
-            await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
+        var employees = sqlResponse.Select(x =>
+          new Employee(x.Id, x.Name));
 
-            var sqlResponse = await sqlConnection.QueryAsync<EmployeeDto>(Sql);
+        var employee = employees.FirstOrDefault(x => x.Id == id);
 
-            var employees = sqlResponse.Select(x =>
-              new Employee(x.Id, x.Name));
-
-            var employee = employees.FirstOrDefault(x => x.Id == id);
-
-            return employee;
-        }
+        return employee;
     }
 }
 

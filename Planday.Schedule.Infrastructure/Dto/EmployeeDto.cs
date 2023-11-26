@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Planday.Schedule.Infrastructure.Dto
+namespace Planday.Schedule.Infrastructure.Dto;
+
+public class EmployeeDto
 {
-    public class EmployeeDto
-    {
-        public long Id { get; }
-        public string Name { get; }
-    }
+    public long Id { get; }
+    public string Name { get; }
 }
 

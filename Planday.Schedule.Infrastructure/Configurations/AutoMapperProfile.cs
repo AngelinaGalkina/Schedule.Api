@@ -2,14 +2,13 @@
 using Planday.Schedule.Infrastructure.Dto;
 using Planday.Schedule.Models;
 
-namespace Planday.Schedule.Infrastructure.Configurations
+namespace Planday.Schedule.Infrastructure.Configurations;
+
+public class AutoMapperProfile : Profile
 {
-    public class AutoMapperProfile : Profile
+    public AutoMapperProfile()
     {
-        public AutoMapperProfile()
-        {
-            CreateMap<Shift, ShiftDto>();
-            CreateMap<ShiftDto, Shift>();
-        }
+        CreateMap<Shift, ShiftDto>();
+        CreateMap<ShiftDto, Shift>();
     }
 }

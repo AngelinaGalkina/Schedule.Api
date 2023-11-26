@@ -1,8 +1,7 @@
-﻿namespace Planday.Schedule.Infrastructure.Providers.Interfaces
+﻿namespace Planday.Schedule.Infrastructure.Providers.Interfaces;
+
+public interface IConnectionStringProvider
 {
-    public interface IConnectionStringProvider
-    {
-        string GetConnectionString();
-    }    
-}
+    string GetConnectionString();
+}    
 

@@ -7,78 +7,77 @@ using Planday.Schedule.Models;
 using Planday.Schedule.Queries.Select;
 using System.Text;
 
-namespace Planday.Schedule.Infrastructure.Queries.Select
+namespace Planday.Schedule.Infrastructure.Queries.Select;
+
+public class SelectShiftsQuery : ISelectShiftsQuery
 {
-    public class SelectShiftsQuery : ISelectShiftsQuery
+    private readonly IConnectionStringProvider _connectionStringProvider;
+    private readonly IMapper _mapper;
+
+    public SelectShiftsQuery(IConnectionStringProvider connectionStringProvider, IMapper mapper)
     {
-        private readonly IConnectionStringProvider _connectionStringProvider;
-        private readonly IMapper _mapper;
+        _connectionStringProvider = connectionStringProvider;
+        _mapper = mapper;
+    }
 
-        public SelectShiftsQuery(IConnectionStringProvider connectionStringProvider, IMapper mapper)
+    public async Task<Shift?> ShiftById(long id)
+    {
+        await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
+
+        var sqlText = "SELECT Id, EmployeeId, Start, End FROM Shift WHERE Id = @Id;";
+        var parameters = new { Id = id };
+
+        var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText, parameters);
+        var shiftDto = sqlResponse.FirstOrDefault();
+
+        if (shiftDto == null)
         {
-            _connectionStringProvider = connectionStringProvider;
-            _mapper = mapper;
+            return null;
         }
 
-        public async Task<Shift?> ShiftById(long id)
-        {
-            await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
+        var shift = _mapper.Map<Shift>(shiftDto);
 
-            var sqlText = "SELECT Id, EmployeeId, Start, End FROM Shift WHERE Id = @Id;";
-            var parameters = new { Id = id };
+        return shift;
+    }
 
-            var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText, parameters);
-            var shiftDto = sqlResponse.FirstOrDefault();
+    public async Task<IReadOnlyCollection<Shift>> OverlappingShifts(long employeeId, DateTime newStart, DateTime newEnd)
+    {
+        await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 
-            if (shiftDto == null)
-            {
-                return null;
-            }
+        var sqlQueryBuilder = new StringBuilder("SELECT * FROM Shift WHERE EmployeeId = @EmployeeId AND (");
+        var parameters = new { EmployeeId = employeeId, NewStart = newStart, NewEnd = newEnd };
 
-            var shift = _mapper.Map<Shift>(shiftDto);
+        // Conditions for overlapping shifts
+        sqlQueryBuilder.Append("(Start <= @NewStart AND End > @NewEnd) OR ");
+        sqlQueryBuilder.Append("(Start < @NewStart AND End >= @NewEnd) OR ");
+        sqlQueryBuilder.Append("(@NewStart <= Start AND @NewEnd >= End)");
 
-            return shift;
-        }
+        // Complete the SQL query
+        sqlQueryBuilder.Append(");");
 
-        public async Task<IReadOnlyCollection<Shift>> OverlappingShifts(long employeeId, DateTime newStart, DateTime newEnd)
-        {
-            await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
+        var sqlText = sqlQueryBuilder.ToString();
+        var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText, parameters);
 
-            var sqlQueryBuilder = new StringBuilder("SELECT * FROM Shift WHERE EmployeeId = @EmployeeId AND (");
-            var parameters = new { EmployeeId = employeeId, NewStart = newStart, NewEnd = newEnd };
+        var shifts = _mapper.Map<List<Shift>>(sqlResponse);
 
-            // Conditions for overlapping shifts
-            sqlQueryBuilder.Append("(Start <= @NewStart AND End > @NewEnd) OR ");
-            sqlQueryBuilder.Append("(Start < @NewStart AND End >= @NewEnd) OR ");
-            sqlQueryBuilder.Append("(@NewStart <= Start AND @NewEnd >= End)");
-
-            // Complete the SQL query
-            sqlQueryBuilder.Append(");");
-
-            var sqlText = sqlQueryBuilder.ToString();
-            var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText, parameters);
-
-            var shifts = _mapper.Map<List<Shift>>(sqlResponse);
-
-            return shifts;
-        }
+        return shifts;
+    }
 
 
-        public async Task<IReadOnlyCollection<long?>> EmployeeByShiftId(long id)
-        {
-            await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
+    public async Task<IReadOnlyCollection<long?>> EmployeeByShiftId(long id)
+    {
+        await using var sqlConnection = new SqliteConnection(_connectionStringProvider.GetConnectionString());
 
-            var sqlText = $"SELECT * FROM Shift WHERE Id = {id};";
+        var sqlText = $"SELECT * FROM Shift WHERE Id = {id};";
 
-            var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText);
+        var sqlResponse = await sqlConnection.QueryAsync<ShiftDto>(sqlText);
 
-            var shifts = _mapper.Map<List<Shift>>(sqlResponse);
+        var shifts = _mapper.Map<List<Shift>>(sqlResponse);
 
-            // employee id can be null.
-            var employeeIdList = shifts.Select(shift => shift.EmployeeId).ToList();
+        // employee id can be null.
+        var employeeIdList = shifts.Select(shift => shift.EmployeeId).ToList();
 
-            return employeeIdList;
-        }
+        return employeeIdList;
     }
 }
 
