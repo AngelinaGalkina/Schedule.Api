@@ -1,48 +1,34 @@
-﻿using Planday.Schedule.ApiClient;
+﻿using Planday.Schedule.Domain;
 using Planday.Schedule.Models;
-using Planday.Schedule.Queries.Insert;
-using Planday.Schedule.Queries.Select;
-using Planday.Schedule.Queries.Update;
+using Planday.Schedule.Repositories;
 using Planday.Schedule.Validators;
 
 namespace Planday.Schedule.Services;
 
 public class ShiftService : IShiftService
 {
-    private readonly ISelectShiftsQuery _selectShiftsQuery;
+    private readonly IShiftRepository _shiftRepository;
 
-    private readonly IUpdateShiftsQuery _updateShiftsQuery;
+    private readonly IEmployeeRepository _employeeRepository;
 
-    private readonly ISelectEmployeeQuery _selectEmployeeQuery;
-
-    private readonly IInsertShiftsQuery _insertShiftsQuery;
-
-    private readonly IEmailApiClient _emailApiHandler;
-    
     private readonly ICreateShiftValidator _createShiftValidations;
-   
+    
     private readonly IAssignShiftToEmployeeValidator _assignShiftToEmployeeValidations;
 
-    public ShiftService(ISelectShiftsQuery selectShiftsQuery,
-        IUpdateShiftsQuery updateShiftsQuery,
-        ISelectEmployeeQuery selectEmployeeQuery,
-        IInsertShiftsQuery insertShiftsQuery,
-        IEmailApiClient emailApiHandler,
+    public ShiftService(IShiftRepository shiftRepository, 
+        IEmployeeRepository employeeRepository, 
         ICreateShiftValidator createShiftValidations,
         IAssignShiftToEmployeeValidator assignShiftToEmployeeValidations)
     {
-        _selectShiftsQuery = selectShiftsQuery;
-        _updateShiftsQuery = updateShiftsQuery;
-        _selectEmployeeQuery = selectEmployeeQuery;
-        _insertShiftsQuery = insertShiftsQuery;
-        _emailApiHandler = emailApiHandler;
+        _shiftRepository = shiftRepository;
+        _employeeRepository = employeeRepository;
         _createShiftValidations = createShiftValidations;
         _assignShiftToEmployeeValidations = assignShiftToEmployeeValidations;
     }
 
     public async Task<EmployeeShift> ShiftById(long id)
     {
-        var shift = await _selectShiftsQuery.ShiftById(id);
+        var shift = await _shiftRepository.ShiftById(id);
 
         if (shift == null)
         {
@@ -51,14 +37,14 @@ public class ShiftService : IShiftService
 
         var shiftWithEmployeeInfo = ShiftWithEmployeeInfo(shift);
 
-        return shiftWithEmployeeInfo ?? new EmployeeShift(shift.Id, shift.EmployeeId, shift.Start, shift.End);
+        return shiftWithEmployeeInfo ?? new EmployeeShift(shift.Id, shift.Employee, shift.Start, shift.End);
     }
 
     public async Task<Shift> CreateShift(ShiftBase newShift)
     {
         _createShiftValidations.Validate(newShift);
 
-        var newShiftId = await _insertShiftsQuery.InsertShift(newShift);
+        var newShiftId = await _shiftRepository.InsertShift(newShift);
 
         if (newShiftId == null)
         {
@@ -66,7 +52,7 @@ public class ShiftService : IShiftService
         }
 
         // casting to long since value will never be null.
-        var createdShift = await _selectShiftsQuery.ShiftById((long)newShiftId);
+        var createdShift = await _shiftRepository.ShiftById((long)newShiftId);
 
         if (createdShift == null)
         {
@@ -78,14 +64,14 @@ public class ShiftService : IShiftService
 
     public async Task<Shift> AssignShiftToEmployee(long employeeId, long shiftId)
     {
-        var shift = await _selectShiftsQuery.ShiftById(shiftId);
+        var shift = await _shiftRepository.ShiftById(shiftId);
 
         if (shift == null)
         {
             throw new Exception($"Couldn't find shift with id: {shiftId}");
         }
 
-        var employee = await _selectEmployeeQuery.EmployeeById(employeeId);
+        var employee = await _employeeRepository.EmployeeById(employeeId);
 
         if (employee == null)
         {
@@ -94,7 +80,7 @@ public class ShiftService : IShiftService
 
         await _assignShiftToEmployeeValidations.ValidateAsync(shift, employeeId, shiftId);
 
-        var updatedShift = await _updateShiftsQuery.UpdateEmployeeId(shiftId, employeeId);
+        var updatedShift = await _shiftRepository.UpdateEmployeeId(shiftId, employeeId);
 
         if (updatedShift == null)
         {
@@ -106,13 +92,13 @@ public class ShiftService : IShiftService
 
     private EmployeeShift? ShiftWithEmployeeInfo(Shift shift)
     {
-        if (shift.EmployeeId != null)
+        if (shift.Employee.Id != null)
         {
-            var employeeInfo = _emailApiHandler.EmployeeEmail((long)shift.EmployeeId);
+            var employeeInfo = _employeeRepository.EmployeeEmail((long)shift.Employee.Id);
 
             if (employeeInfo != null)
             {
-                return new EmployeeShift(shift.Id, shift.EmployeeId, shift.Start, shift.End)
+                return new EmployeeShift(shift.Id, shift.Employee, shift.Start, shift.End)
                 {
                     EmployeeName = employeeInfo.Name,
                     EmployeeEmail = employeeInfo.Email

@@ -1,4 +1,5 @@
-﻿using Planday.Schedule.Models;
+﻿using Planday.Schedule.Domain;
+using Planday.Schedule.Models;
 
 namespace Planday.Schedule.Services;
 
