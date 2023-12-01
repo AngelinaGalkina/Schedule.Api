@@ -1,15 +1,15 @@
-﻿using Planday.Schedule.Models;
-using Planday.Schedule.Queries.Select;
+﻿using Planday.Schedule.Domain;
+using Planday.Schedule.Repositories;
 
 namespace Planday.Schedule.Validators;
 
 public class AssignShiftToEmployeeValidator : IAssignShiftToEmployeeValidator
 {
-    private readonly ISelectShiftsQuery _selectShiftsQuery;
+    private readonly IShiftRepository _shiftRepository;
 
-    public AssignShiftToEmployeeValidator(ISelectShiftsQuery selectShiftsQuery)
+    public AssignShiftToEmployeeValidator(IShiftRepository shiftRepository)
     {
-        _selectShiftsQuery = selectShiftsQuery;
+        _shiftRepository = shiftRepository;
     }
 
     public async Task ValidateAsync(Shift shift, long employeeId, long shiftId)
@@ -18,7 +18,7 @@ public class AssignShiftToEmployeeValidator : IAssignShiftToEmployeeValidator
         // to a shift in a time where that employee is already working
         var newShiftStart = shift.Start;
         var newShiftEnd = shift.End;
-        var oveplappingShift = await _selectShiftsQuery.OverlappingShifts(employeeId, newShiftStart, newShiftEnd);
+        var oveplappingShift = await _shiftRepository.OverlappingShifts(employeeId, newShiftStart, newShiftEnd);
 
         if (oveplappingShift.Count != 0)
         {
@@ -26,7 +26,7 @@ public class AssignShiftToEmployeeValidator : IAssignShiftToEmployeeValidator
         }
 
         // You cannot assign the same shift to two or more employees
-        var employeeIdsCheck = await _selectShiftsQuery.EmployeeByShiftId(shiftId);
+        var employeeIdsCheck = await _shiftRepository.EmployeeByShiftId(shiftId);
 
         foreach (var employeeIdCheck in employeeIdsCheck)
         {

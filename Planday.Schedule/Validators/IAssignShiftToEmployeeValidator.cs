@@ -1,4 +1,4 @@
-﻿using Planday.Schedule.Models;
+﻿using Planday.Schedule.Domain;
 
 namespace Planday.Schedule.Validators;
 
