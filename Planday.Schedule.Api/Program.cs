@@ -1,13 +1,6 @@
-using Planday.Schedule.ApiClient;
-using Planday.Schedule.Infrastructure.ApiClient;
 using Planday.Schedule.Infrastructure.Providers;
-using Planday.Schedule.Infrastructure.Providers.Interfaces;
-using Planday.Schedule.Infrastructure.Queries.Insert;
-using Planday.Schedule.Infrastructure.Queries.Select;
-using Planday.Schedule.Infrastructure.Queries.Update;
-using Planday.Schedule.Queries.Insert;
-using Planday.Schedule.Queries.Select;
-using Planday.Schedule.Queries.Update;
+using Planday.Schedule.Infrastructure.Repository;
+using Planday.Schedule.Repositories;
 using Planday.Schedule.Services;
 using Planday.Schedule.Validators;
 
@@ -21,11 +14,8 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton<IConnectionStringProvider>(new ConnectionStringProvider(builder.Configuration.GetConnectionString("Database")));
 builder.Services.AddScoped<IShiftService, ShiftService>();
-builder.Services.AddScoped<ISelectShiftsQuery, SelectShiftsQuery>();
-builder.Services.AddScoped<ISelectEmployeeQuery, SelectEmployeeQuery>();
-builder.Services.AddScoped<IUpdateShiftsQuery, UpdateShiftsQuery>();
-builder.Services.AddScoped<IInsertShiftsQuery, InsertShiftsQuery>();
-builder.Services.AddScoped<IEmailApiClient, EmailApiClient>();
+builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ICreateShiftValidator, CreateShiftValidator>();
 builder.Services.AddScoped<IAssignShiftToEmployeeValidator, AssignShiftToEmployeeValidator>();
 

@@ -29,11 +29,11 @@ public class ShiftController : ControllerBase
             response.Data = new AssignedShiftDto
             {
                 Id = employeeShift.Id,
-                EmployeeId = employeeShift.EmployeeId,
+                EmployeeId = employeeShift.Employee.Id,
                 End = employeeShift.End.ToString(),
                 Start = employeeShift.Start.ToString(),
-                EmployeeName = employeeShift.EmployeeName,
-                EmployeeEmail = employeeShift.EmployeeEmail,
+                EmployeeName = employeeShift.Employee.Name,
+                EmployeeEmail = employeeShift.Employee.Email,
             };
 
             return Ok(response);
@@ -60,7 +60,7 @@ public class ShiftController : ControllerBase
             response.Data = new ShiftDto
             {
                 Id = createdShift.Id,
-                EmployeeId = createdShift.EmployeeId,
+                EmployeeId = createdShift.Employee?.Id,
                 End = createdShift.End.ToString(),
                 Start = createdShift.Start.ToString(),
             };
@@ -87,7 +87,7 @@ public class ShiftController : ControllerBase
             response.Data = new ShiftDto
             {
                 Id = assignedShift.Id,
-                EmployeeId = assignedShift.EmployeeId,
+                EmployeeId = assignedShift.Employee.Id,
                 End = assignedShift.End.ToString(),
                 Start = assignedShift.Start.ToString(),
             };

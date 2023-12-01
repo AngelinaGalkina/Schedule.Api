@@ -5,11 +5,11 @@ VisualStudioVersion = 17.7.34302.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Planday.Schedule.Api", "Planday.Schedule.Api\Planday.Schedule.Api.csproj", "{93730D8E-29C3-43EC-981C-AE0270DCD78D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Planday.Schedule", "Planday.Schedule\Planday.Schedule.csproj", "{3338A09F-BAAD-4CC5-86EF-FA13DAF2458F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Planday.Schedule.Application", "Planday.Schedule\Planday.Schedule.Application.csproj", "{3338A09F-BAAD-4CC5-86EF-FA13DAF2458F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Planday.Schedule.Infrastructure", "Planday.Schedule.Infrastructure\Planday.Schedule.Infrastructure.csproj", "{55B3AB9E-33D3-4404-BC61-0DD805A8169F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Planday.Schedule.Domain", "Planday.Schedule.Domain\Planday.Schedule.Domain.csproj", "{E04BFBCF-ED50-4948-967E-DCF605CFD06A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Planday.Schedule.Domain", "Planday.Schedule.Domain\Planday.Schedule.Domain.csproj", "{E04BFBCF-ED50-4948-967E-DCF605CFD06A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
