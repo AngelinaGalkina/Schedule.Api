@@ -1,6 +1,5 @@
 ﻿namespace Planday.Schedule.Domain;
 
-
 public class Shift
 {
     public Shift(long id, Employee employee, DateTime start, DateTime end)
@@ -11,8 +10,7 @@ public class Shift
         End = end;
     }
 
-    public Employee Employee { get; set; }
-
+    public Employee? Employee { get; set; }
     public long Id { get; set; }
     public DateTime Start { get; }
     public DateTime End { get; }
